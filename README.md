@@ -12,6 +12,4 @@ fastapi, uvicorn
 
 matplotlib (по желанию)
 
-jupyter (по желанию)
-
 MuseScore (системная утилита, обязательно)
