@@ -1,7 +1,7 @@
 import torch
 import pickle
 import music21 as m21
-
+import glob 
 
 # Функция перевода MIDI токены
 def midi_to_tokens(midi_path):
@@ -19,7 +19,7 @@ def midi_to_tokens(midi_path):
     return tokens
 
 #собираешь датасет
-midi_paths = ["data/song1.mid", "data/song2.mid"]  # список  файлов
+midi_paths = glob.glob("ml/dataset/*.mid")   # список  файлов
 all_tokens = []
 for path in midi_paths:
     all_tokens.extend(midi_to_tokens(path))
@@ -40,7 +40,7 @@ class MusicDataset(torch.utils.data.Dataset):
         y = self.sequences[idx+1:idx+self.seq_len+1]
         return torch.tensor(x), torch.tensor(y)
 
-dataloader = torch.utils.data.DataLoader(MusicDataset(sequences, 32), batch_size=16, shuffle=True)
+dataloader = torch.utils.data.DataLoader(MusicDataset(sequences, 64), batch_size=32, shuffle=True)
 
 # Модель 
 class TokenAndPositionalEmbedding(torch.nn.Module):
@@ -57,8 +57,7 @@ class MusicTransformer(torch.nn.Module):
     def __init__(self, vocab_size, embed_dim=32, n_heads=2, n_layers=2, max_len=300):
         super().__init__()
         self.embedding = TokenAndPositionalEmbedding(vocab_size, embed_dim, max_len)
-        encoder_layer = torch.nn.TransformerEncoderLayer(d_model=embed_dim, nhead=n_heads,
-                                                         dim_feedforward=512, dropout=0.1, batch_first=True)
+        encoder_layer = torch.nn.TransformerEncoderLayer(d_model=embed_dim, nhead=n_heads, dim_feedforward=512, dropout=0.1, batch_first=True)
         self.transformer = torch.nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
         self.fc = torch.nn.Linear(embed_dim, vocab_size)
     def forward(self, x):
@@ -71,7 +70,7 @@ model = MusicTransformer(len(vocab))
 criterion = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
-for epoch in range(2):  # для теста маленький цикл
+for epoch in range(12):  
     for x, y in dataloader:
         optimizer.zero_grad()
         out = model(x)
