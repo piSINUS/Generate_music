@@ -2,8 +2,8 @@ import torch
 import pickle
 import music21 as m21
 
-# === ТВОЙ КОД === #
-# Функция перевода MIDI → токены
+
+# Функция перевода MIDI токены
 def midi_to_tokens(midi_path):
     score = m21.converter.parse(midi_path)
     tokens = []
@@ -18,8 +18,8 @@ def midi_to_tokens(midi_path):
             tokens.append(f"{pitches}_{dur}")
     return tokens
 
-# === Здесь ты собираешь датасет === #
-midi_paths = ["data/song1.mid", "data/song2.mid"]  # список твоих файлов
+#собираешь датасет
+midi_paths = ["data/song1.mid", "data/song2.mid"]  # список  файлов
 all_tokens = []
 for path in midi_paths:
     all_tokens.extend(midi_to_tokens(path))
@@ -42,7 +42,7 @@ class MusicDataset(torch.utils.data.Dataset):
 
 dataloader = torch.utils.data.DataLoader(MusicDataset(sequences, 32), batch_size=16, shuffle=True)
 
-# === Модель === #
+# Модель 
 class TokenAndPositionalEmbedding(torch.nn.Module):
     def __init__(self, vocab_size, embed_dim, max_len=5000):
         super().__init__()
@@ -66,7 +66,7 @@ class MusicTransformer(torch.nn.Module):
         x = self.transformer(x)
         return self.fc(x)
 
-# === Тренировка === #
+# Тренировка
 model = MusicTransformer(len(vocab))
 criterion = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
@@ -80,7 +80,7 @@ for epoch in range(2):  # для теста маленький цикл
         optimizer.step()
     print(f"Epoch {epoch+1}, Loss: {loss.item()}")
 
-# === Сохраняем всё нужное === #
+#  Сохраняем pickle
 with open("model.pkl", "wb") as f:
     pickle.dump({
         "model_state": model.state_dict(),
