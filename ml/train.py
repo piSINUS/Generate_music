@@ -19,7 +19,7 @@ def midi_to_tokens(midi_path):
     return tokens
 
 #собираешь датасет
-midi_paths = glob.glob("ml/dataset/*.mid")   # список  файлов
+midi_paths = glob.glob("/home/goida/Desktop/otus_home_work/final_project/ml/dataset/*.mid")   # список  файлов
 all_tokens = []
 for path in midi_paths:
     all_tokens.extend(midi_to_tokens(path))

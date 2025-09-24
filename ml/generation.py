@@ -14,7 +14,7 @@ def tokens_to_midi(tokens, out_file="generated.mid"):
         except:
             pass
     s.write("midi", fp=out_file)
-    print(f"🎶 Сохранён файл {out_file}")
+    print(f"Сохранён файл {out_file}")
 
 # Загружаем обученную модель 
 with open("model.pkl", "rb") as f:
@@ -38,8 +38,7 @@ class MusicTransformer(torch.nn.Module):
     def __init__(self, vocab_size, embed_dim=32, n_heads=2, n_layers=2, max_len=300):
         super().__init__()
         self.embedding = TokenAndPositionalEmbedding(vocab_size, embed_dim, max_len)
-        encoder_layer = torch.nn.TransformerEncoderLayer(d_model=embed_dim, nhead=n_heads,
-                                                         dim_feedforward=512, dropout=0.1, batch_first=True)
+        encoder_layer = torch.nn.TransformerEncoderLayer(d_model=embed_dim, nhead=n_heads,dim_feedforward=512, dropout=0.1, batch_first=True)
         self.transformer = torch.nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
         self.fc = torch.nn.Linear(embed_dim, vocab_size)
     def forward(self, x):
@@ -52,10 +51,10 @@ model.load_state_dict(saved["model_state"])
 model.eval()
 
 # Генерация 
-def generate_music(seed="C4_1.0", length=20):
+def generate_music(seed="C4_1.0", length=5):
     tokens = [seed]
     for _ in range(length):
-        x = torch.tensor([[token2idx[t] for t in tokens[-10:]]])  # последние 10 токенов
+        x = torch.tensor([[token2idx[t] for t in tokens]])  # последние 10 токенов
         with torch.no_grad():
             out = model(x)
             probs = torch.softmax(out[0, -1], dim=0)
@@ -65,3 +64,4 @@ def generate_music(seed="C4_1.0", length=20):
 
 tokens = generate_music()
 tokens_to_midi(tokens)
+print("SUCSESS")
